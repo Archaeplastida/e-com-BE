@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
-const {PORT} = require("./config/config");
 const db = require('./config/db');
+const ExpressError = require("./expressError")
 
 // Middleware
 app.use(express.json()); // For parsing JSON bodies
@@ -20,15 +20,24 @@ const getUsers = async () => {
 }
 
 
-app.get('/', async (req, res) => {
-  let allUsers = await getUsers();
-  res.send(allUsers);
+// app.get('/', async (req, res) => {
+//   let allUsers = await getUsers();
+//   res.send(allUsers);
+// });
+
+app.use(function(req, res, next) {
+  const err = new ExpressError("Not Found", 404);
+  return next(err);
 });
 
-// Error handling middleware (optional)
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
+app.use(function(err, req, res, next) {
+  res.status(err.status || 500);
+  if (process.env.NODE_ENV != "test") console.error(err.stack);
+
+  return res.json({
+    error: err,
+    message: err.message
+  });
 });
 
 module.exports = app;
