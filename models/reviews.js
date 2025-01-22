@@ -1,4 +1,4 @@
-const db = require("../db");
+const db = require("../config/db");
 
 class Review {
     static async create({ user_id, product_id, rating, review_text }) {

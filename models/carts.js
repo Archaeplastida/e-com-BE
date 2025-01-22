@@ -1,7 +1,7 @@
-const db = require("../db");
+const db = require("../config/db");
 
 class Cart {
-    static async add_item({user_Id, product_id}){
+    static async add_item({user_id, product_id}){
         const result = await db.query(`INSERT INTO cart (user_id, product_id, is_active) VALUES ($1, $2, true) RETURNING user_id, product_id`, [user_id, product_id]);
         return result.rows[0];
     }

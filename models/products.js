@@ -1,4 +1,4 @@
-const db = require("../db");
+const db = require("../config/db");
 
 class Product {
     static async create({ seller_id, product_name, product_description, price }) {

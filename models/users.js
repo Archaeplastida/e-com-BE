@@ -1,19 +1,22 @@
-const db = require("../db");
+const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const ExpressError = require("../expressError");
 const { BCRYPT_WORK_FACTOR } = require("../config/config");
 
 class User {
     static async register({ user_name, first_name, last_name, email, password }) {
-        let hashedPassword = bcrypt.hash(password, BCRYPT_WORK_FACTOR);
-        const result = await db.query(`INSERT INTO Users (user_name, first_name, last_name, email, password, is_active) VALUES ($1, $2, $3, $4, $5, true) RETURNING username, password, first_name, last_name`, [user_name, first_name, last_name, email, hashedPassword])
+        let hashedPassword = await bcrypt.hash(password, 13);
+        const result = await db.query(`INSERT INTO Users (user_name, first_name, last_name, email, password, is_active) VALUES ($1, $2, $3, $4, $5, true) RETURNING user_name, password, first_name, last_name`, [user_name, first_name, last_name, email, hashedPassword])
         return result.rows[0];
     }
 
     static async authenticate({ user_name, password }) {
-        const result = await db.query(`SELECT password FROM users WHERE user_name = $1 AND is_active = true`, [user_name]);
-        let user = result.rows[0];
-        return user && bcrypt.compare(password, user.password);
+        const result = await db.query(`SELECT id, password FROM users WHERE user_name = $1 AND is_active = true`, [user_name]);
+        if(result.rows.length === 0) return false
+        let user = result.rows[0]
+        let comparePassword = await bcrypt.compare(password, user.password);
+        if (comparePassword) return user.id
+        return false;
     }
 
     static async all() {

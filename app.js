@@ -1,24 +1,22 @@
 const express = require('express');
 const app = express();
 const db = require('./config/db');
+const cors = require("cors");
 const ExpressError = require("./expressError")
+const { authenticateJWT } = require("./middleware/auth");
 
 // Middleware
 app.use(express.json()); // For parsing JSON bodies
+app.use(cors());
+app.use(authenticateJWT);
+app.use(express.urlencoded({extended: true}));
 
 // Routes
-// const authRoutes = require("./routes/auth");
+const authRoutes = require("./routes/auth");
 // const productsRoutes = require("./routes/products");
 // const usersRoutes = require("./routes/users");
 
-const getUsers = async () => {
-  const result = await db.query(
-    `SELECT * FROM users`
-  )
-
-  return result.rows[0];
-}
-
+app.use("/auth", authRoutes);
 
 // app.get('/', async (req, res) => {
 //   let allUsers = await getUsers();
