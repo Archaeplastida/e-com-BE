@@ -26,14 +26,14 @@ router.post("/register", async (req, res, next) => {
     }
 })
 
-module.exports = router;
-
 router.get("/logout", ensureLoggedIn, async (req, res, next) => {
     try {
         let user_id = req.user.user_id;
         Session.deactivate({ user_id });
         return res.json({ message: "Logged out successfully." });
     } catch (err) {
-
+        return next(err);
     }
 })
+
+module.exports = router;
