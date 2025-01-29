@@ -5,7 +5,7 @@ const { BCRYPT_WORK_FACTOR } = require("../config/config");
 
 class User {
     static async register({ user_name, first_name, last_name, email, password }) {
-        let hashedPassword = await bcrypt.hash(password, 13);
+        let hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
         const result = await db.query(`INSERT INTO Users (user_name, first_name, last_name, email, password, is_active) VALUES ($1, $2, $3, $4, $5, true) RETURNING user_name, password, first_name, last_name`, [user_name, first_name, last_name, email, hashedPassword])
         return result.rows[0];
     }
