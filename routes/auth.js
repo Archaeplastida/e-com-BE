@@ -41,7 +41,6 @@ router.post("/register", async (req, res, next) => {
     ) {
       throw new ExpressError("Missing required fields", 400);
     }
-<<<<<<< HEAD
     let { user_name } = await User.register(req.body);
     return res.json({
       message: `${user_name} has registered; you can now login.`,
@@ -65,18 +64,5 @@ router.get("/logout", ensureLoggedIn, async (req, res, next) => {
     return next(err);
   }
 });
-=======
-})
-
-router.get("/logout", ensureLoggedIn, async (req, res, next) => {
-    try {
-        let user_id = req.user.user_id;
-        Session.deactivate({ user_id });
-        return res.json({ message: "Logged out successfully." });
-    } catch (err) {
-        return next(err);
-    }
-})
->>>>>>> c70d69a9e3f690bc8c610198f394618121745a59
 
 module.exports = router;

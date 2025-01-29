@@ -2,22 +2,13 @@ const Product = require("../models/products");
 
 const Review  = require("../models/reviews");
 
-<<<<<<< HEAD
 const Router = require("express").Router, router = new Router(), ExpressError = require("../expressError"), { ensureLoggedIn } = require("../middleware/auth");
-=======
-const jwt = require("jsonwebtoken"), Router = require("express").Router, router = new Router(), User = require("../models/users"), Session = require("../models/sessions"), { SECRET_KEY } = require("../config/config"), ExpressError = require("../expressError"), { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
->>>>>>> c70d69a9e3f690bc8c610198f394618121745a59
 
 router.post("/create", ensureLoggedIn, async (req, res, next) => {
     try {
         let seller_id = req.user.user_id;
-<<<<<<< HEAD
         const { product_name, product_description, price, tags, images} = req.body;
         const created = await Product.create({ seller_id, product_name, product_description, price, tags, images });
-=======
-        const { product_name, product_description, price, tags } = req.body;
-        const created = tags && tags.length > 0 ? await Product.create({ seller_id, product_name, product_description, price, tags }) : await Product.create({ seller_id, product_name, product_description, price });
->>>>>>> c70d69a9e3f690bc8c610198f394618121745a59
         return res.json({ created });
     } catch (err) {
         return next(err);
@@ -117,12 +108,8 @@ router.post("/:product_id/rate", ensureLoggedIn, async (req, res, next) => {
         for(let i of reviews) {
             if(i.user_id === req.user.user_id) throw new ExpressError("ONE review per person", 400);
         }
-<<<<<<< HEAD
         let {rating, review_text} = req.body;
         review_text = review_text === null ? "" : review_text;
-=======
-        const {rating, review_text} = req.body;
->>>>>>> c70d69a9e3f690bc8c610198f394618121745a59
         const user_id = req.user.user_id;
         const product_id = req.params.product_id;
         const review = await Review.create({user_id, product_id, rating, review_text})
