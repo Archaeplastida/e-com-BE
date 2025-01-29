@@ -1,18 +1,31 @@
 const db = require("../config/db");
 
 class Product {
-    static async create({ seller_id, product_name, product_description, price, tags }) {
+    static async create({ seller_id, product_name, product_description, price, tags, images }) {
         const result = await db.query(
             `INSERT INTO Products (seller_id, product_name, product_description, price, is_active) VALUES ($1, $2, $3, $4, true) RETURNING id, seller_id, product_name, product_description, price`,
             [seller_id, product_name, product_description, price]
         );
+
         const product_id = result.rows[0].id;
+
+        if (images && images.length > 0) {
+            await Promise.all(
+                images.map(image => {
+                    db.query(`INSERT INTO product_image (product_id, image_url, is_active) VALUES ($1, $2, true)`,
+                        [product_id, image.image_url]
+                    );
+                })
+            )
+        }
+
+
         if (tags && tags.length > 0) {
             await Promise.all(
                 tags.map((tag) =>
                     db.query(
                         `INSERT INTO product_tag_map (product_id, tag_id) VALUES ($1, $2)`,
-                        [product_id, tag.id]
+                        [product_id, tag.tag_id]
                     )
                 )
             );
@@ -38,6 +51,13 @@ class Product {
            FROM Tag t
            JOIN Product_tag_map ptm ON t.id = ptm.tag_id
            WHERE ptm.product_id = $1 AND t.is_active = true`,
+            [product_id]
+        );
+        return result.rows;
+    }
+
+    static async getProductImages(product_id) {
+        const result = await db.query(`SELECT image_url FROM product_image WHERE product_id = $1 AND is_active = true`,
             [product_id]
         );
         return result.rows;
@@ -74,7 +94,7 @@ class Product {
                     tags.map((tag) =>
                         db.query(
                             `INSERT INTO product_tag_map (product_id, tag_id) VALUES ($1, $2)`,
-                            [product_id, tag.id]
+                            [product_id, tag.tag_id]
                         )
                     )
                 );
@@ -126,8 +146,6 @@ class Product {
             [product_id]
         );
 
-        console.log(await Product.getProductReviews(product_id));
-
         if (result.rows.length === 0) {
             return null;
         }
@@ -135,6 +153,7 @@ class Product {
         const product = result.rows[0];
         product.tags = await Product.getProductTags(product_id);
         product.ratings = await Product.getProductReviews(product_id);
+        product.images = await Product.getProductImages(product_id);
         return product;
     }
 
