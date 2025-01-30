@@ -20,11 +20,6 @@ app.use("/auth", authRoutes);
 app.use("/products", productsRoutes);
 app.use("/users", usersRoutes);
 
-// app.get('/', async (req, res) => {
-//   let allUsers = await getUsers();
-//   res.send(allUsers);
-// });
-
 app.use(function (req, res, next) {
   const err = new ExpressError("Not Found", 404);
   return next(err);

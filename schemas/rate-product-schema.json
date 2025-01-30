@@ -1,0 +1,8 @@
+{
+    "type": "object",
+    "properties": {
+      "rating": { "type": "number", "minimum": 1, "maximum": 5 },
+      "review_text": { "type": "string" }
+    },
+    "required": ["rating"]
+  }

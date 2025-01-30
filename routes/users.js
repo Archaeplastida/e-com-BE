@@ -1,4 +1,13 @@
-const jwt = require("jsonwebtoken"), Router = require("express").Router, router = new Router(), User = require("../models/users"), Cart = require("../models/carts"), Session = require("../models/sessions"), { SECRET_KEY } = require("../config/config"), ExpressError = require("../expressError"), { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
+const Router = require("express").Router,
+  router = new Router(),
+  User = require("../models/users"),
+  Cart = require("../models/carts"),
+  ExpressError = require("../expressError"),
+  { ensureLoggedIn } = require("../middleware/auth"),
+  validateSchema = require("../middleware/validateSchema");
+
+const cartItemSchema = require('../schemas/cart-item-schema.json');
+
 
 router.get("/", ensureLoggedIn, async (req, res, next) => {
     try {
@@ -19,18 +28,24 @@ router.get("/cart", ensureLoggedIn, async (req, res, next) => {
     }
 })
 
-router.post("/cart", ensureLoggedIn, async (req, res, next) => {
+router.post("/cart", ensureLoggedIn, validateSchema(cartItemSchema), async (req, res, next) => {
     try {
         const added = await Cart.add_item({ user_id: req.user.user_id, product_id: req.body.product_id });
+        if (!added) {
+            throw new ExpressError("Product not found", 404);
+        }
         return res.json({ added });
     } catch (err) {
         return next(err);
     }
 })
 
-router.delete("/cart", ensureLoggedIn, async (req, res, next) => {
+router.delete("/cart", ensureLoggedIn, validateSchema(cartItemSchema), async (req, res, next) => {
     try {
-        await Cart.remove_item({ user_id: req.user.user_id, product_id: req.body.product_id });
+        const deleted = await Cart.remove_item({ user_id: req.user.user_id, product_id: req.body.product_id });
+        if (!deleted) {
+            throw new ExpressError("Failed to remove item from cart. Product might not be in cart.", 400);
+        }
         return res.json({ message: "Deleted successfully." });
     } catch (err) {
         return next(err);

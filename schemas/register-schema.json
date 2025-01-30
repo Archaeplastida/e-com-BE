@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "User Registration Schema",
+    "description": "Schema for user registration request body",
+    "type": "object",
+    "properties": {
+      "user_name": {
+        "type": "string",
+        "minLength": 3,
+        "pattern": "^\\S*$"
+      },
+      "password": {
+        "type": "string",
+        "minLength": 8
+      },
+      "first_name": { "type": "string" },
+      "last_name": { "type": "string" },
+      "email": { "type": "string", "format": "email" }
+    },
+    "required": [
+      "user_name",
+      "password",
+      "first_name",
+      "last_name",
+      "email"
+    ],
+    "additionalProperties": false
+  }

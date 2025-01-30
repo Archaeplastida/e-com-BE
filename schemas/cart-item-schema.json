@@ -1,0 +1,7 @@
+{
+    "type": "object",
+    "properties": {
+      "product_id": { "type": "integer" }
+    },
+    "required": ["product_id"]
+  }

@@ -1,10 +1,17 @@
 const Product = require("../models/products");
-
 const Review  = require("../models/reviews");
+const Router = require("express").Router,
+      router = new Router(),
+      ExpressError = require("../expressError"),
+      { ensureLoggedIn } = require("../middleware/auth"),
+      validateSchema = require("../middleware/validateSchema");
 
-const Router = require("express").Router, router = new Router(), ExpressError = require("../expressError"), { ensureLoggedIn } = require("../middleware/auth");
+const createProductSchema = require('../schemas/create-product-schema.json');
+const rateProductSchema = require('../schemas/rate-product-schema.json');
+const updateProductSchema = require('../schemas/update-product-schema.json');
 
-router.post("/create", ensureLoggedIn, async (req, res, next) => {
+
+router.post("/create", ensureLoggedIn, validateSchema(createProductSchema), async (req, res, next) => {
     try {
         let seller_id = req.user.user_id;
         const { product_name, product_description, price, tags, images} = req.body;
@@ -30,7 +37,7 @@ router.get("/:product_id", ensureLoggedIn, async (req, res, next) => {
             product_id: req.params.product_id,
         });
         if (!product) {
-            return res.status(404).json({ error: "Product not found" });
+            throw new ExpressError("Product not found", 404);
         }
         return res.json({ product });
     } catch (err) {
@@ -38,14 +45,14 @@ router.get("/:product_id", ensureLoggedIn, async (req, res, next) => {
     }
 });
 
-router.patch("/:product_id", ensureLoggedIn, async (req, res, next) => {
+router.patch("/:product_id", ensureLoggedIn, validateSchema(updateProductSchema), async (req, res, next) => {
     try {
         const { product_name, product_description, price, tags } = req.body;
         const product_id = req.params.product_id;
         const seller_id = await Product.getSellerId({ product_id });
 
         if (seller_id === null) {
-            return res.status(404).json({ error: "Product not found" });
+            throw new ExpressError("Product not found", 404);
         }
 
         let product;
@@ -62,7 +69,7 @@ router.patch("/:product_id", ensureLoggedIn, async (req, res, next) => {
         }
 
         if (!product) {
-            return res.status(404).json({ error: "Product not found" });
+            throw new ExpressError("Product not found", 404);
         }
 
         return res.json({ product });
@@ -77,7 +84,7 @@ router.delete("/:product_id", ensureLoggedIn, async (req, res, next) => {
         const seller_id = await Product.getSellerId({ product_id });
 
         if (seller_id === null) {
-            return res.status(404).json({ error: "Product not found" });
+            throw new ExpressError("Product not found", 404);
         }
 
         let product_deleted;
@@ -102,7 +109,7 @@ router.get("/tag/:tag_id", ensureLoggedIn, async (req, res, next) => {
     }
 });
 
-router.post("/:product_id/rate", ensureLoggedIn, async (req, res, next) => {
+router.post("/:product_id/rate", ensureLoggedIn, validateSchema(rateProductSchema), async (req, res, next) => {
     try {
         const reviews = await Product.getProductReviews(req.params.product_id);
         for(let i of reviews) {
@@ -112,7 +119,7 @@ router.post("/:product_id/rate", ensureLoggedIn, async (req, res, next) => {
         review_text = review_text === null ? "" : review_text;
         const user_id = req.user.user_id;
         const product_id = req.params.product_id;
-        const review = await Review.create({user_id, product_id, rating, review_text})
+        const review = await Review.create({user_id, product_id, rating, review_text});
         return res.json({ review });
     } catch (err) {
         return next(err);

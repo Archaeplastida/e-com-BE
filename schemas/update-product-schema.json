@@ -1,0 +1,26 @@
+{
+    "type": "object",
+    "properties": {
+        "product_name": {
+            "type": "string"
+        },
+        "product_description": {
+            "type": "string"
+        },
+        "price": {
+            "type": "number"
+        },
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "tag_id": {
+                        "type": "number"
+                    }
+                }
+            }
+        }
+    },
+    "additionalProperties": false
+}

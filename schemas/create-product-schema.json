@@ -1,0 +1,41 @@
+{
+    "type": "object",
+    "properties": {
+        "product_name": {
+            "type": "string"
+        },
+        "product_description": {
+            "type": "string"
+        },
+        "price": {
+            "type": "number"
+        },
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "tag_id": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "images": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "image_url": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "required": [
+        "product_name",
+        "product_description",
+        "price"
+    ]
+}

@@ -5,15 +5,15 @@ const jwt = require("jsonwebtoken"),
   Session = require("../models/sessions"),
   { SECRET_KEY } = require("../config/config"),
   ExpressError = require("../expressError"),
-  { ensureLoggedIn } = require("../middleware/auth");
+  { ensureLoggedIn } = require("../middleware/auth"),
+  validateSchema = require("../middleware/validateSchema"),
+  registerSchema = require("../schemas/register-schema.json"),   
+  loginSchema = require("../schemas/login-schema.json");       
 
-router.post("/login", async (req, res, next) => {
+
+router.post("/login", validateSchema(loginSchema), async (req, res, next) => {
   try {
     const { user_name, password } = req.body;
-
-    if (!user_name || !password)
-      throw new ExpressError("Missing information", 400);
-
     let authenticateUser = await User.authenticate({ user_name, password });
     if (authenticateUser) {
       const token = jwt.sign(
@@ -30,17 +30,8 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.post("/register", async (req, res, next) => {
+router.post("/register", validateSchema(registerSchema), async (req, res, next) => {
   try {
-    if (
-      !req.body.user_name ||
-      !req.body.password ||
-      !req.body.first_name ||
-      !req.body.last_name ||
-      !req.body.email
-    ) {
-      throw new ExpressError("Missing required fields", 400);
-    }
     let { user_name } = await User.register(req.body);
     return res.json({
       message: `${user_name} has registered; you can now login.`,
