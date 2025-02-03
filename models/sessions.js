@@ -7,7 +7,7 @@ class Session {
     }
 
     static async deactivate({ user_id }) {
-        const result = await db.query("UPDATE sessions SET is_active = false WHERE user_id = $1", [user_id]);
+        const result = await db.query("UPDATE sessions SET is_active = false WHERE user_id = $1 AND is_active = true", [user_id]);
         return true;
     }
 

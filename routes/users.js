@@ -3,13 +3,13 @@ const Router = require("express").Router,
   User = require("../models/users"),
   Cart = require("../models/carts"),
   ExpressError = require("../expressError"),
-  { ensureLoggedIn } = require("../middleware/auth"),
+  { ensureLoggedIn, authenticateJWT } = require("../middleware/auth"),
   validateSchema = require("../middleware/validateSchema");
 
 const cartItemSchema = require('../schemas/cart-item-schema.json');
 
 
-router.get("/", ensureLoggedIn, async (req, res, next) => {
+router.get("/", ensureLoggedIn, authenticateJWT, async (req, res, next) => {
     try {
         const user = await User.get({ user_id: req.user.user_id });
         res.json({ user });
@@ -19,7 +19,7 @@ router.get("/", ensureLoggedIn, async (req, res, next) => {
     }
 })
 
-router.get("/cart", ensureLoggedIn, async (req, res, next) => {
+router.get("/cart", ensureLoggedIn, authenticateJWT, async (req, res, next) => {
     try {
         const result = await Cart.get_items({ user_id: req.user.user_id });
         return res.json({ result });
@@ -28,7 +28,7 @@ router.get("/cart", ensureLoggedIn, async (req, res, next) => {
     }
 })
 
-router.post("/cart", ensureLoggedIn, validateSchema(cartItemSchema), async (req, res, next) => {
+router.post("/cart", ensureLoggedIn, authenticateJWT, validateSchema(cartItemSchema), async (req, res, next) => {
     try {
         const added = await Cart.add_item({ user_id: req.user.user_id, product_id: req.body.product_id });
         if (!added) {
@@ -40,7 +40,7 @@ router.post("/cart", ensureLoggedIn, validateSchema(cartItemSchema), async (req,
     }
 })
 
-router.delete("/cart", ensureLoggedIn, validateSchema(cartItemSchema), async (req, res, next) => {
+router.delete("/cart", ensureLoggedIn, authenticateJWT, validateSchema(cartItemSchema), async (req, res, next) => {
     try {
         const deleted = await Cart.remove_item({ user_id: req.user.user_id, product_id: req.body.product_id });
         if (!deleted) {

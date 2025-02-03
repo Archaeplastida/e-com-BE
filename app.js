@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express();
-const db = require('./config/db');
 const cors = require("cors");
 const ExpressError = require("./expressError")
 const { authenticateJWT } = require("./middleware/auth");

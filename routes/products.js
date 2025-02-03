@@ -3,7 +3,7 @@ const Review  = require("../models/reviews");
 const Router = require("express").Router,
       router = new Router(),
       ExpressError = require("../expressError"),
-      { ensureLoggedIn } = require("../middleware/auth"),
+      { ensureLoggedIn, authenticateJWT } = require("../middleware/auth"),
       validateSchema = require("../middleware/validateSchema");
 
 const createProductSchema = require('../schemas/create-product-schema.json');
@@ -11,7 +11,7 @@ const rateProductSchema = require('../schemas/rate-product-schema.json');
 const updateProductSchema = require('../schemas/update-product-schema.json');
 
 
-router.post("/create", ensureLoggedIn, validateSchema(createProductSchema), async (req, res, next) => {
+router.post("/create", ensureLoggedIn, authenticateJWT, validateSchema(createProductSchema), async (req, res, next) => {
     try {
         let seller_id = req.user.user_id;
         const { product_name, product_description, price, tags, images} = req.body;
@@ -45,7 +45,7 @@ router.get("/:product_id", ensureLoggedIn, async (req, res, next) => {
     }
 });
 
-router.patch("/:product_id", ensureLoggedIn, validateSchema(updateProductSchema), async (req, res, next) => {
+router.patch("/:product_id", ensureLoggedIn, authenticateJWT, validateSchema(updateProductSchema), async (req, res, next) => {
     try {
         const { product_name, product_description, price, tags } = req.body;
         const product_id = req.params.product_id;
@@ -78,7 +78,7 @@ router.patch("/:product_id", ensureLoggedIn, validateSchema(updateProductSchema)
     }
 });
 
-router.delete("/:product_id", ensureLoggedIn, async (req, res, next) => {
+router.delete("/:product_id", ensureLoggedIn, authenticateJWT, async (req, res, next) => {
     try {
         const product_id = req.params.product_id;
         const seller_id = await Product.getSellerId({ product_id });
@@ -109,7 +109,7 @@ router.get("/tag/:tag_id", ensureLoggedIn, async (req, res, next) => {
     }
 });
 
-router.post("/:product_id/rate", ensureLoggedIn, validateSchema(rateProductSchema), async (req, res, next) => {
+router.post("/:product_id/rate", ensureLoggedIn, authenticateJWT, validateSchema(rateProductSchema), async (req, res, next) => {
     try {
         const reviews = await Product.getProductReviews(req.params.product_id);
         for(let i of reviews) {

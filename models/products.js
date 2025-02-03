@@ -30,6 +30,7 @@ class Product {
                 )
             );
             return {
+                id: result.rows[0].id,
                 seller_id: result.rows[0].seller_id,
                 product_name: result.rows[0].product_name,
                 product_description: result.rows[0].product_description,
@@ -38,6 +39,7 @@ class Product {
             };
         }
         return {
+            id : result.rows[0].id,
             seller_id: result.rows[0].seller_id,
             product_name: result.rows[0].product_name,
             product_description: result.rows[0].product_description,

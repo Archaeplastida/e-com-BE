@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken"),
   Session = require("../models/sessions"),
   { SECRET_KEY } = require("../config/config"),
   ExpressError = require("../expressError"),
-  { ensureLoggedIn } = require("../middleware/auth"),
+  { ensureLoggedIn, authenticateJWT } = require("../middleware/auth"),
   validateSchema = require("../middleware/validateSchema"),
   registerSchema = require("../schemas/register-schema.json"),   
   loginSchema = require("../schemas/login-schema.json");       
@@ -46,10 +46,9 @@ router.post("/register", validateSchema(registerSchema), async (req, res, next) 
   }
 });
 
-router.get("/logout", ensureLoggedIn, async (req, res, next) => {
+router.get("/logout", ensureLoggedIn, authenticateJWT, async (req, res, next) => {
   try {
-    let user_id = req.user.user_id;
-    await Session.deactivate({ user_id });
+    await Session.deactivate({ user_id: req.user.user_id });
     return res.json({ message: "Logged out successfully." });
   } catch (err) {
     return next(err);

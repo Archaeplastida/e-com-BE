@@ -23,12 +23,20 @@ describe('Auth Routes - Schema Validation', () => {
         email: 'newtest@example.com'
     };
 
+    let authToken;
+
+    afterAll(async () => {
+        await db.query("DELETE FROM sessions");
+        await db.query("DELETE FROM users");
+        db.end();
+    });
+
     beforeEach(async () => {
         try {
             await db.query("DELETE FROM sessions");
             await db.query("DELETE FROM users");
-    
-            
+
+
             try {
                 await User.register(testUserData);
             } catch (registrationError) {
@@ -36,6 +44,13 @@ describe('Auth Routes - Schema Validation', () => {
                     throw registrationError;
                 }
             }
+
+            const loginResponse = await request(app)
+                .post('/auth/login')
+                .send({ user_name: testUserData.user_name, password: testUserData.password });
+            authToken = loginResponse.body.token;
+
+
         } catch (error) {
             console.error("Error during beforeEach setup:", error);
         }
@@ -197,6 +212,35 @@ describe('Auth Routes - Schema Validation', () => {
                 400,
                 "Validation failed: does not match pattern \"^\\\\S*$\""
             );
+        });
+    });
+
+    describe('GET /auth/logout', () => {
+        it('should return 200 and success message for valid logout', async () => {
+            const response = await request(app)
+                .get('/auth/logout')
+                .set('Authorization', `Bearer ${authToken}`);
+
+            expect(response.statusCode).toBe(200);
+            expect(response.body.message).toBe("Logged out successfully.");
+        });
+
+        it('should return 401 for logout without a token', async () => {
+            const response = await request(app)
+                .get('/auth/logout');
+
+            expect(response.statusCode).toBe(401);
+            expect(response.body.error.message).toBe("Unauthorized");
+        });
+
+        it('should return 401 for logout with invalid token', async () => {
+            const invalidToken = 'invalid.token.value';
+            const response = await request(app)
+                .get('/auth/logout')
+                .set('Authorization', `Bearer ${invalidToken}`);
+
+            expect(response.statusCode).toBe(401);
+            expect(response.body.error.message).toBe("Unauthorized");
         });
     });
 });
