@@ -5,14 +5,16 @@ const Session = require("../models/sessions");
 
 async function authenticateJWT(req, res, next) {
   try {
-    const tokenFromBody = req.headers.authorization.split(' ')[1];
-    //console.log(tokenFromBody) debug purposes
-    const payload = jwt.verify(tokenFromBody, SECRET_KEY);
-    if (await Session.verify({ user_id: payload.user_id })) req.user = payload; // create a current user
-    ExpressError("Unauthorized", 401);
+    if (req.headers.authorization) {
+      const tokenFromBody = req.headers.authorization.split(' ')[1]
+      //console.log(tokenFromBody, [1, 2, 3]) //debug purposes
+      const payload = jwt.verify(tokenFromBody, SECRET_KEY);
+      if (await Session.verify({ user_id: payload.user_id })) req.user = payload; // create a current user
+      else throw new ExpressError("Unauthorized", 401);
+    }
     return next();
   } catch (err) {
-    return next();
+    return next(err);
   }
 }
 

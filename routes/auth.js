@@ -55,4 +55,12 @@ router.get("/logout", ensureLoggedIn, authenticateJWT, async (req, res, next) =>
   }
 });
 
+router.get("/verify", authenticateJWT, async (req, res, next) => {
+  try {
+    return res.json({message: "Valid"});
+  } catch (err) {
+    return next(err);
+  }
+})
+
 module.exports = router;

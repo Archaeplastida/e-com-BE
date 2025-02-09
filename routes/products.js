@@ -1,5 +1,6 @@
 const Product = require("../models/products");
 const Review  = require("../models/reviews");
+const Tag = require("../models/tags")
 const Router = require("express").Router,
       router = new Router(),
       ExpressError = require("../expressError"),
@@ -108,6 +109,15 @@ router.get("/tag/:tag_id", ensureLoggedIn, async (req, res, next) => {
         return next(err);
     }
 });
+
+router.get("/tags/all", ensureLoggedIn, async (req, res, next) => {
+    try {
+        const tags = await Tag.all();
+        return res.json({tags});
+    } catch (err) {
+        return next(err);
+    }
+})
 
 router.post("/:product_id/rate", ensureLoggedIn, authenticateJWT, validateSchema(rateProductSchema), async (req, res, next) => {
     try {

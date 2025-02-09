@@ -15,7 +15,7 @@ class Cart {
     }
 
     static async get_items({ user_id }) {
-        const result = await db.query(`SELECT p.product_name, p.product_description, p.price FROM products p JOIN cart c ON p.id = c.product_id WHERE c.user_id = $1 AND c.is_active = true`, [user_id]);
+        const result = await db.query(`SELECT p.product_name, p.product_description, p.price, p.id FROM products p JOIN cart c ON p.id = c.product_id WHERE c.user_id = $1 AND c.is_active = true`, [user_id]);
         return result.rows;
     }
 }

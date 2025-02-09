@@ -58,7 +58,6 @@ describe('Product Routes', () => {
                 .post('/auth/login')
                 .send({ user_name: sellerUserData.user_name, password: sellerUserData.password });
             sellerAuthToken = sellerLoginResponse.body.token;
-            console.log(sellerAuthToken);
 
             await User.register(regularUserData);
             const regularLoginResponse = await request(app)
@@ -83,7 +82,6 @@ describe('Product Routes', () => {
                 .set('Authorization', `Bearer ${sellerAuthToken}`)
                 .send(productPayload);
             testProduct = createProductResponse.body.created;
-            console.log(testProduct)
 
 
         } catch (error) {
@@ -127,7 +125,6 @@ describe('Product Routes', () => {
                 images: [{ image_url: 'http://example.com/image2.jpg' }]
             };
 
-            console.log(predefinedTagIds);
             const response = await makeRequest('post', '/create', sellerAuthToken, productPayload, 200);
             expect(response.body.created).toBeDefined();
             expect(response.body.created.product_name).toBe('New Product');

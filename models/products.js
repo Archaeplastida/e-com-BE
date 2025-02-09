@@ -132,6 +132,7 @@ class Product {
         const productsWithTags = await Promise.all(
             result.rows.map(async (product) => {
                 product.tags = await Product.getProductTags(product.id);
+                product.images = await Product.getProductImages(product.id);
                 return product;
             })
         );
@@ -186,6 +187,7 @@ class Product {
         const productsWithTags = await Promise.all(
             result.rows.map(async (product) => {
                 product.tags = await Product.getProductTags(product.id);
+                product.images = await Product.getProductImages(product.id);
                 return product;
             })
         );
